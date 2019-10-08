@@ -1,6 +1,8 @@
 package com.xielei.springshiro.mapper;
 
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 
 import com.xielei.springshiro.entity.User;
@@ -11,8 +13,19 @@ import com.xielei.springshiro.entity.User;
  * @author xielei
  * @date 2019/10/07
  */
-@Repository
 public interface UserMapper {
+    
+    int deleteByPrimaryKey(Integer uid);
+    
+    int insert(User record);
+    
+    int insertSelective(User record);
+    
+    User selectByPrimaryKey(Integer uid);
+    
+    int updateByPrimaryKeySelective(User record);
+    
+    int updateByPrimaryKey(User record);
     
     /**
      * 根据用户名查询

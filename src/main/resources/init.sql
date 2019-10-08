@@ -24,8 +24,8 @@ CREATE TABLE USER (
   primary key (uid)
 ) engine = InnoDB default charset = utf8;
 
-insert into USER values ('1', 'admin', '123');
-insert into USER values ('2', 'demo', '123');
+insert into USER values ('1', 'admin', '123', 'shiro');
+insert into USER values ('2', 'demo', '123', 'shiro');
 
 
 /*角色表*/

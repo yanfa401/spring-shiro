@@ -1,7 +1,5 @@
 package com.xielei.springshiro.service;
 
-import org.apache.ibatis.annotations.Param;
-
 import com.xielei.springshiro.entity.User;
 
 /**

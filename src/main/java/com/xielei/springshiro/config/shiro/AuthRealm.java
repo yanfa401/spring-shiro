@@ -14,6 +14,7 @@ import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.xielei.springshiro.entity.Permission;
@@ -34,13 +35,6 @@ public class AuthRealm extends AuthorizingRealm {
     
     /**
      * 授权时候调用该方法
-     * Retrieves the AuthorizationInfo for the given principals from the underlying data store.  When returning
-     * an instance from this method, you might want to consider using an instance of
-     * {@link SimpleAuthorizationInfo SimpleAuthorizationInfo}, as it is suitable in most cases.
-     *
-     * @param principals the primary identifying principals of the AuthorizationInfo that should be retrieved.
-     * @return the AuthorizationInfo associated with this principals.
-     * @see SimpleAuthorizationInfo
      */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
@@ -48,6 +42,7 @@ public class AuthRealm extends AuthorizingRealm {
         Set<String> permissionSet = new HashSet<>();
         // 1.获取用户信息
         Collection collection = principals.fromRealm(this.getClass().getName());
+        User userWeb = (User) principals.getPrimaryPrincipal();
         User user = (User) collection.iterator().next();
         // 2.根据用户,获取角色列表
         Set<Role> roles = user.getRoles();
@@ -69,28 +64,17 @@ public class AuthRealm extends AuthorizingRealm {
     
     /**
      * 认证登录时候用的
-     * Retrieves authentication data from an implementation-specific datasource (RDBMS, LDAP, etc) for the given
-     * authentication token.
-     * <p/>
-     * For most datasources, this means just 'pulling' authentication data for an associated subject/user and nothing
-     * more and letting Shiro do the rest.  But in some systems, this method could actually perform EIS specific
-     * log-in logic in addition to just retrieving data - it is up to the Realm implementation.
-     * <p/>
-     * A {@code null} return value means that no account could be associated with the specified token.
-     *
-     * @param token the authentication token containing the user's principal and credentials.
-     * @return an {@link AuthenticationInfo} object containing account data resulting from the
-     * authentication ONLY if the lookup is successful (i.e. account exists and is valid, etc.)
-     * @throws AuthenticationException if there is an error acquiring data or performing
-     *                                 realm-specific authentication logic for the specified <tt>token</tt>
      */
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        // 1.强转成UsernamePasswordToken类型
+        // token携带了用户信息
         UsernamePasswordToken usernamePasswordToken = (UsernamePasswordToken) token;
-        // 2.取出对应的 username,password
+        // 获取前端输入的用户名
         String username = usernamePasswordToken.getUsername();
+        // 根据用户名查询数据库中对应的记录
         User user = userService.findByUserName(username);
-        return new SimpleAuthenticationInfo(user, user.getPassword(), this.getClass().getName());
+        // 盐值
+        ByteSource salt = ByteSource.Util.bytes(user.getSalt());
+        return new SimpleAuthenticationInfo(user, user.getPassword(), salt, this.getClass().getName());
     }
 }

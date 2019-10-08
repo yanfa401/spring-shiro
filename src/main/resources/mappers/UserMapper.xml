@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xielei.springshiro.mapper.UserMapper">
+    <resultMap id="BaseResultMap" type="com.xielei.springshiro.entity.User">
+        <id column="uid" jdbcType="INTEGER" property="uid" />
+        <result column="user_name" jdbcType="VARCHAR" property="userName" />
+        <result column="password" jdbcType="VARCHAR" property="password" />
+        <result column="salt" jdbcType="VARCHAR" property="salt" />
+    </resultMap>
+
+    <resultMap id="userMap" type="com.xielei.springshiro.entity.User">
+        <!--与User实体类的一一映射-->
+        <id property="uid" column="uid"></id>
+        <result property="userName" column="user_name" ></result>
+        <result property="password" column="password" ></result>
+        <result property="salt" column="salt" ></result>
+        <collection property="roles" ofType="com.xielei.springshiro.entity.Role" >
+            <id property="rid" column="rid" ></id>
+            <result property="roleName" column="role_name" ></result>
+            <collection property="permissions" ofType="com.xielei.springshiro.entity.Permission" >
+                <id property="pid" column="pid"></id>
+                <result property="name" column="name" ></result>
+                <result property="url" column="url" ></result>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        uid, user_name, password, salt
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from user
+        where uid = #{uid,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete from user
+        where uid = #{uid,jdbcType=INTEGER}
+    </delete>
+    <insert id="insert" parameterType="com.xielei.springshiro.entity.User">
+        insert into user (uid, user_name, password,
+                          salt)
+        values (#{uid,jdbcType=INTEGER}, #{userName,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
+                #{salt,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="com.xielei.springshiro.entity.User">
+        insert into user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="uid != null">
+                uid,
+            </if>
+            <if test="userName != null">
+                user_name,
+            </if>
+            <if test="password != null">
+                password,
+            </if>
+            <if test="salt != null">
+                salt,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="uid != null">
+                #{uid,jdbcType=INTEGER},
+            </if>
+            <if test="userName != null">
+                #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="salt != null">
+                #{salt,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.xielei.springshiro.entity.User">
+        update user
+        <set>
+            <if test="userName != null">
+                user_name = #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                password = #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="salt != null">
+                salt = #{salt,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where uid = #{uid,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.xielei.springshiro.entity.User">
+        update user
+        set user_name = #{userName,jdbcType=VARCHAR},
+            password = #{password,jdbcType=VARCHAR},
+            salt = #{salt,jdbcType=VARCHAR}
+        where uid = #{uid,jdbcType=INTEGER}
+    </update>
+
+    <select id="findByUserName" parameterType="string" resultMap="userMap">
+      select * from `user` where user_name = #{userName}
+    </select>
+</mapper>
